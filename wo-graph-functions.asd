@@ -4,5 +4,7 @@
   :serial t
   :depends-on (#:wo-graph #:wo-util)
   :components ((:file "package")
+	       (:file "vertex-functions")
+	       (:file "simplify")
                (:file "wo-graph-functions")))
 
