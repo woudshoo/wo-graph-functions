@@ -188,3 +188,20 @@ By swapping the two functions around, the topological sort is reversed."
 			   (seen-all-previous w))
 		  (visit w))))
       (nreverse result))))
+
+
+;;; NOTE
+;;;
+;;; THIS FUNCTION MIGHT NEED TO GO.  IT IS TOO SIMPLE.
+;;; PROBABLY WE NEED TO EXTEND neighborhood To optionally
+;;; take a funcion argument. ALSO NOTE THAT neighborhood
+;;; is probably buggy, I think it can return the same vertex
+;;; multiple times. HOWEVER, neighborhood needs to use a priority-queue.
+(defun visit-vertices (fn vertex next graph)
+  "Visit the vertices (including vertex) which are reacheable from
+`vertex' by calling `next' repeatedly.  For each vertex found it will
+call the function `fn' with two arguments, the vertex and the `graph'.
+Care is taken that the function `fn' is called exactly once for a
+reacheable vertex."
+  (mapcar (lambda (v) (funcall fn v graph))
+	  (neighborhood vertex graph :selector next)))
