@@ -10,5 +10,6 @@
    #:make-subgraph-reducer
    #:boundary-from
    #:minimal-boundary-from
-   #:reachable-from-not-reachable-from))
+   #:reachable-from-not-reachable-from
+   #:write-to-dot))
 

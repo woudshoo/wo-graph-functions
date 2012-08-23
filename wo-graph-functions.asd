@@ -6,5 +6,6 @@
   :components ((:file "package")
 	       (:file "vertex-functions")
 	       (:file "simplify")
-               (:file "wo-graph-functions")))
+               (:file "wo-graph-functions")
+	       (:file "graphviz")))
 
