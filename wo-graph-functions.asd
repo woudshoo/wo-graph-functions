@@ -5,6 +5,7 @@
   :depends-on (#:wo-graph #:wo-util)
   :components ((:file "package")
 	       (:file "vertex-functions")
+	       (:file "paths")
 	       (:file "simplify")
                (:file "wo-graph-functions")
 	       (:file "graphviz")))
