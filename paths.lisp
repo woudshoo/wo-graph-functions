@@ -23,4 +23,4 @@ Also vi is an element of (funcall 'next v{i-1} graph)."
 	 :do
 	 (add-to-todo-and-result (funcall next v graph) p))
 
-      (get-mark vertex-b marker))))
+      (nreverse (get-mark vertex-b marker)))))
