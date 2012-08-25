@@ -1,0 +1,74 @@
+\input texinfo
+@c %**start of header
+@setfilename wo-graph-functions.info
+@settitle Graph (Reduction) Functions
+@c %**end of header
+
+@copying
+Copyright @copyright{} 2012, Willem Rein Oudshoorn
+All rights reserved.
+
+The basic license is GPL version 3.0 or later. 
+However if you have a need for a different license,
+please ask me and I most likely will dual license it.
+@end copying
+
+@finalout
+@setcontentsaftertitlepage
+
+@titlepage
+@title WO-Graph-Functions
+@subtitle Graph (Reduction) Functions
+@author Willem Rein Oudshoorn
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@include include/sb-texinfo.texinfo
+
+@node Top, Overview, (dir), (dir)
+@top Introduction
+
+This package is build on top of @url{http://github.com/woudshoo/wo-graph/} and
+provides graph reduction algorithms.  
+
+The basic problem this package tries to solve is, how to present
+largish graphs (thousands of vertices) to a user in such a way that it is usefull.  
+
+It tries to do this by taking the largish graph and reduce it to graph
+containing significantly less vertices (and edges).  In order for this
+to work, the algorithms need information about which vertices are
+important and which are not.  Given this information it tries to create
+a graph containing those vertices, removing many other vertices, while
+still retaining the structure of the graph.
+
+The source code is available at @url{http://github.com/woudshoo/wo-graph-functions/}.
+
+@contents
+
+@menu
+* Overview::
+* Function Index::
+@end menu
+
+@node Overview, Function Index, Top, Top
+@chapter Overview
+
+@include include/fun-wo-graph-functions-boundary-from.texinfo
+@include include/fun-wo-graph-functions-make-single-sided-reducer.texinfo
+@include include/fun-wo-graph-functions-make-subgraph-reducer.texinfo
+@include include/fun-wo-graph-functions-minimal-boundary-from.texinfo
+@include include/fun-wo-graph-functions-neighborhood.texinfo
+@include include/fun-wo-graph-functions-reachable-from-not-reachable-from.texinfo
+@include include/fun-wo-graph-functions-simplify.texinfo
+@include include/fun-wo-graph-functions-topological-sort.texinfo
+@include include/fun-wo-graph-functions-write-to-dot.texinfo
+
+@node Function Index,  , Overview, Top
+@comment  node-name,  next,  previous,  up
+@appendix Function Index
+
+@printindex fn
+
+@bye
