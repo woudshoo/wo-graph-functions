@@ -1,0 +1,276 @@
+<html lang="en">
+<head>
+<title>Graph (Reduction) Functions</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Graph (Reduction) Functions">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="top" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 2012, Willem Rein Oudshoorn
+All rights reserved.
+
+The basic license is GPL version 3.0 or later.
+However if you have a need for a different license,
+please ask me and I most likely will dual license it.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+.node { visibility:hidden; height: 0px; }
+  .menu { visibility:hidden; height: 0px; }
+  .appendix { background-color:#a4bbff; padding: 0.2em; }
+  .chapter { background-color:#a4bbff; padding: 0.2em; }
+  .section { background-color:#a4bbff; padding: 0.2em; }
+  .settitle { background-color:#a4bbff; }
+  .contents { border: 2px solid black;
+              margin: 1cm 1cm 1cm 1cm;
+              padding-left: 3mm; }
+  .lisp { padding: 0; margin: 0em; }
+  code { font-family: sans-serif; font-style: italic;}
+  body { padding: 2em 8em; font-family: sans-serif; }
+  h1 { padding: 1em; text-align: center; }
+  li { margin: 1em; }
+
+--></style>
+</head>
+<body>
+<h1 class="settitle">Graph (Reduction) Functions</h1>
+<div class="node">
+<p><hr>
+<a name="Top"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Overview">Overview</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#dir">(dir)</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
+
+</div>
+
+<h2 class="unnumbered">Introduction</h2>
+
+<p>This package is build on top of <a href="http://github.com/woudshoo/wo-graph/">http://github.com/woudshoo/wo-graph/</a> and
+provides graph reduction algorithms.
+
+   <p>The basic problem this package tries to solve is, how to present
+largish graphs (thousands of vertices) to a user in such a way that it is usefull.
+
+   <p>It tries to do this by taking the largish graph and reduce it to graph
+containing significantly less vertices (and edges).  In order for this
+to work, the algorithms need information about which vertices are
+important and which are not.  Given this information it tries to create
+a graph containing those vertices, removing many other vertices, while
+still retaining the structure of the graph.
+
+   <p>The source code is available at <a href="http://github.com/woudshoo/wo-graph-functions/">http://github.com/woudshoo/wo-graph-functions/</a>.
+
+<div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top" href="#Top">Introduction</a>
+<li><a name="toc_Overview" href="#Overview">1 Overview</a>
+<li><a name="toc_Function-Index" href="#Function-Index">Appendix A Function Index</a>
+</li></ul>
+</div>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Overview">Overview</a>
+<li><a accesskey="2" href="#Function-Index">Function Index</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="Overview"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Function-Index">Function Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">1 Overview</h2>
+
+<p><a name="index-boundary_002dfrom-1"></a><a name="Function-boundary_002dfrom"></a>
+
+<div class="defun">
+&mdash; Function: <b>boundary-from</b><var> vertices next selector-p graph<a name="index-boundary_002dfrom-2"></a></var><br>
+<blockquote><p>Returns all vertices from the graph such that
+
+        <p>1. There is a path from `vertices' by calling successively `next'. 
+2. The vertex satisfies `selector-p' (calling is (selector-p vertex `graph'))
+3. The path does not contain any other vertex which satisfies `selector-p'.
+
+        <p>Note: The argument `vertices' is either a single vertex or a
+      collection of vertices.
+
+        <p>Note: The argument `next' is a function of two arguments a vertex and
+      `graph' and returns the reacheable set of other vertices given
+      the vertex argument.
+
+        <p>Some explanation: It basically keeps expanding the set of vertices
+given as first argument until it finds a vertex which satisfies the
+selector.  So the selector is indicate the boundary. 
+</p></blockquote></div>
+
+   <p><a name="index-make_002dsingle_002dsided_002dreducer-3"></a><a name="Function-make_002dsingle_002dsided_002dreducer"></a>
+
+<div class="defun">
+&mdash; Function: <b>make-single-sided-reducer</b><var> next previous next-count connect-edge<a name="index-make_002dsingle_002dsided_002dreducer-4"></a></var><br>
+<blockquote><p>Removes all vertices for which `next' returns a list of length
+`next-count' elements.  It will add edges with `connect-edge'
+between each source and target of the vertex to be removed.
+
+        <p>Could be used as
+
+     <pre class="lisp">           (make-singe-sided-reducer sources-of-vertex targets-of-vertex 1
+                     (lambda (s t g) (add-edge s t nil g)))
+     </pre>
+        <p>Or for the other way around
+
+     <pre class="lisp">           (make-singe-sided-reducer targets-of-vertex sources-of-vertex 1
+                     (lambda (t s g) (add-edge s t nil g)))
+     </pre>
+        </blockquote></div>
+
+   <p><a name="index-make_002dsubgraph_002dreducer-5"></a><a name="Function-make_002dsubgraph_002dreducer"></a>
+
+<div class="defun">
+&mdash; Function: <b>make-subgraph-reducer</b><var><a name="index-make_002dsubgraph_002dreducer-6"></a></var><br>
+<blockquote><p>Removes all non interesting vertices. 
+</p></blockquote></div>
+
+   <p><a name="index-minimal_002dboundary_002dfrom-7"></a><a name="Function-minimal_002dboundary_002dfrom"></a>
+
+<div class="defun">
+&mdash; Function: <b>minimal-boundary-from</b><var> vertices next selector-p graph<a name="index-minimal_002dboundary_002dfrom-8"></a></var><br>
+<blockquote><p>Returns all vertices from the `graph' such that
+
+        <p>1. There is a path from `vertices' by calling successively `next'.
+
+        <p>2. The vertex satisfies `selector-p'
+   (called as (selector-p vertex graph))
+
+        <p>3. There is no path to the vertex which will have 2
+   vertices (including the end points) that satisfy `selector-p'.
+
+        <p>See for comparision the function boundary-from, the results of this
+function will be a subset of boundary-from.
+
+        <p>Note: The argument `vertices' is either a single vertex or a
+      collection of vertices
+
+        <p>Note: The argument `next' is a function of two arguments, a vertex and
+     `graph' and returns the reacheable set of other vertices given the
+      vertex argument. 
+</p></blockquote></div>
+
+   <p><a name="index-neighborhood-9"></a><a name="Function-neighborhood"></a>
+
+<div class="defun">
+&mdash; Function: <b>neighborhood</b><var> vertex graph &amp;optional &amp;key max-distance selector<a name="index-neighborhood-10"></a></var><br>
+<blockquote><p>Returns a list of vertices which can be considered the neighborhood
+of the `vertex' argument.
+
+        <p>The `selector' argument is a function of two arguments,
+a vertex and a graph and provides the direct neighbors of the vertex.
+
+        <p>The list of vertices which is returned is all vertices which
+can be reached from `vertex' in less than `max-distances' steps using
+the `selector' function.
+
+        <p>If `max-distance' is nil or 0 there is no limit on the number of steps. 
+</p></blockquote></div>
+
+   <p><a name="index-reachable_002dfrom_002dnot_002dreachable_002dfrom-11"></a><a name="Function-reachable_002dfrom_002dnot_002dreachable_002dfrom"></a>
+
+<div class="defun">
+&mdash; Function: <b>reachable-from-not-reachable-from</b><var> vertex-a next-a vertex-b next-b graph<a name="index-reachable_002dfrom_002dnot_002dreachable_002dfrom-12"></a></var><br>
+<blockquote><p>Returns a list of vertices in `graph' which are reacheable from
+`vertex-a' by subsequently calling `next-a', but which are not
+reachable from `vertex-b' by calling `next-b'. 
+</p></blockquote></div>
+
+   <p><a name="index-simplify-13"></a><a name="Function-simplify"></a>
+
+<div class="defun">
+&mdash; Function: <b>simplify</b><var> graph &amp;optional &amp;key selector reducers<a name="index-simplify-14"></a></var><br>
+<blockquote><p>Simplifies a graph by repeatedly calling the reducers in `reducers' on `graph'.
+
+        <p>The `reducers' argument should be a list of functions each taking two arguments,
+the `selector' and the `graph'.  Such a function should return true if
+the graph is modified, and nil if the reducer did not modify the graph.
+
+        <p>The `selector' is also a function taking two arguments, a vertex and the graph.
+
+        <p>The idea of the algorithm is that the reducers are called until none of the reducers
+modifies the graph.   The selector argument is passed to the reducers to indicate
+which vertices are not to be removed by the reducer. 
+</p></blockquote></div>
+
+   <p><a name="index-topological_002dsort-15"></a><a name="Function-topological_002dsort"></a>
+
+<div class="defun">
+&mdash; Function: <b>topological-sort</b><var> graph next previous<a name="index-topological_002dsort-16"></a></var><br>
+<blockquote><p>Returns the nodes of `graph' vertices sorted in topological order,
+The functions `next' and `previous' are functions of two arguments, a
+vertex and a graph.
+
+        <p>Given a vertex they should return successors respecitvely predecessors in the directed graph.
+
+        <p>So typically you would call it as
+
+     <pre class="lisp">            (topological-sort graph
+                            #'targets-of-vertex
+                            #'sources-of-vertex)
+     </pre>
+        <p>By swapping the two functions around, the topological sort is reversed. 
+</p></blockquote></div>
+
+   <p><a name="index-write_002dto_002ddot-17"></a><a name="Function-write_002dto_002ddot"></a>
+
+<div class="defun">
+&mdash; Function: <b>write-to-dot</b><var> stream graph &amp;optional &amp;key graph-attributes node-attributes edge-attributes node-to-id<a name="index-write_002dto_002ddot-18"></a></var><br>
+<blockquote><p>Writes the `graph' as a dot digraph graph to `stream'. 
+The formatting of the nodes and edges is optionally modified
+by the functions `node-attributes' and `edge-attributes'.
+
+        <p>The optional argument `graph-attributes' is a property list and
+is written at the beginning of the graph.
+
+        <p>If function `node-attributes' is a function taking two arguments,
+a vertex and the graph.   It should return a property list with
+such as (:shape :box :label "text") and these will be incorperated
+into the dot file as ... [shape=box,label="text"].
+
+        <p>The same holds for `edge-attributes', however this is a function of 2 arguments
+the edge and graph.  But the result should again be a property
+list which will be formatted the same as for the `node-attributes'. 
+</p></blockquote></div>
+
+<div class="node">
+<p><hr>
+<a name="Function-Index"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Overview">Overview</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<!-- node-name,  next,  previous,  up -->
+<h2 class="appendix">Appendix A Function Index</h2>
+
+<ul class="index-fn" compact>
+<li><a href="#index-boundary_002dfrom-1"><code>boundary-from</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-make_002dsingle_002dsided_002dreducer-3"><code>make-single-sided-reducer</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-make_002dsubgraph_002dreducer-6"><code>make-subgraph-reducer</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-minimal_002dboundary_002dfrom-7"><code>minimal-boundary-from</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-neighborhood-10"><code>neighborhood</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-reachable_002dfrom_002dnot_002dreachable_002dfrom-12"><code>reachable-from-not-reachable-from</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-simplify-14"><code>simplify</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-topological_002dsort-15"><code>topological-sort</code></a>: <a href="#Overview">Overview</a></li>
+<li><a href="#index-write_002dto_002ddot-18"><code>write-to-dot</code></a>: <a href="#Overview">Overview</a></li>
+   </ul></body></html>
+
