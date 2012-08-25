@@ -4,6 +4,11 @@
 @settitle Graph (Reduction) Functions
 @c %**end of header
 
+@dircategory Software development
+@direntry
+* WO-Graph-Functions: (wo-graph-functions). Graph Reduction/Simplification (for Common Lisp)
+@end direntry
+
 @copying
 Copyright @copyright{} 2012, Willem Rein Oudshoorn
 All rights reserved.
