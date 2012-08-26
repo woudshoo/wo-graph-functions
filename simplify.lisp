@@ -4,13 +4,13 @@
 (defun simplify (graph &optional &key
 		 (selector)
 		 (reducers))
-  "Simplifies a graph by repeatedly calling the reducers in `reducers' on `graph'.
+  "Simplifies a graph by repeatedly calling the reducers in REDUCERS on GRAPH.
 
-The `reducers' argument should be a list of functions each taking two arguments,
-the `selector' and the `graph'.  Such a function should return true if
+The REDUCERS argument should be a list of functions each taking two arguments,
+the SELECTOR and the GRAPH.  Such a function should return true if
 the graph is modified, and nil if the reducer did not modify the graph.
 
-The `selector' is also a function taking two arguments, a vertex and the graph.
+The SELECTOR is also a function taking two arguments, a vertex and the graph.
 
 The idea of the algorithm is that the reducers are called until none of the reducers
 modifies the graph.   The selector argument is passed to the reducers to indicate
@@ -25,8 +25,8 @@ which vertices are not to be removed by the reducer."
 ;;; Common reducers
 
 (defun make-single-sided-reducer (next previous next-count connect-edge)
-  "Removes all vertices for which `next' returns a list of length
-`next-count' elements.  It will add edges with `connect-edge'
+  "Removes all vertices for which NEXT returns a list of length
+NEXT-COUNT elements.  It will add edges with CONNECT-EDGE
 between each source and target of the vertex to be removed.
 
 Could be used as

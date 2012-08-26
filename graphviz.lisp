@@ -8,21 +8,27 @@
 				 (node-attributes (constantly nil))
 				 (edge-attributes (constantly nil))
 				 (node-to-id #'identity))
-  "Writes the `graph' as a dot digraph graph to `stream'.
+  "Writes the GRAPH as a dot digraph graph to STREAM.
 The formatting of the nodes and edges is optionally modified
-by the functions `node-attributes' and `edge-attributes'.
+by the functions NODE-ATTRIBUTES and EDGE-ATTRIBUTES.
 
-The optional argument `graph-attributes' is a property list and
+The optional argument GRAPH-ATTRIBUTES is a property list and
 is written at the beginning of the graph.
 
-If function `node-attributes' is a function taking two arguments,
+If function NODE-ATTRIBUTES is a function taking two arguments,
 a vertex and the graph.   It should return a property list with
-such as (:shape :box :label \"text\") and these will be incorperated
-into the dot file as ... [shape=box,label=\"text\"].
+such as 
 
-The same holds for `edge-attributes', however this is a function of 2 arguments
+  (:shape :box :label \"text\") 
+
+and these will be incorperated
+into the dot file as 
+
+   ... [shape=box,label=\"text\"] ...
+
+The same holds for EDGE-ATTRIBUTES, however this is a function of 2 arguments
 the edge and graph.  But the result should again be a property
-list which will be formatted the same as for the `node-attributes'."
+list which will be formatted the same as for the NODE-ATTRIBUTES."
   (with-standard-io-syntax
     (let ((*print-right-margin* 10000)
 	  (*print-case* :downcase))

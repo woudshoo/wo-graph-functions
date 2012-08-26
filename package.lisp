@@ -12,5 +12,6 @@
    #:minimal-boundary-from
    #:reachable-from-not-reachable-from
    #:write-to-dot
-   #:shortest-path))
+   #:shortest-path
+   #:classify-by-reacheability))
 

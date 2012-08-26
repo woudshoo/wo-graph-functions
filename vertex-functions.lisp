@@ -5,16 +5,16 @@
 		     (max-distance nil)
 		     (selector #'neighbors-of-vertex))
   "Returns a list of vertices which can be considered the neighborhood
-of the `vertex' argument.
+of the VERTEX argument.
 
-The `selector' argument is a function of two arguments,
+The SELECTOR argument is a function of two arguments,
 a vertex and a graph and provides the direct neighbors of the vertex.
 
 The list of vertices which is returned is all vertices which
-can be reached from `vertex' in less than `max-distances' steps using
-the `selector' function.
+can be reached from VERTEX in less than MAX-DISTANCES steps using
+the SELECTOR function.
 
-If `max-distance' is nil or 0 there is no limit on the number of steps."
+If MAX-DISTANCE is nil or 0 there is no limit on the number of steps."
   (let ((marker (get-vertex-marker graph))
 	(todo (queue-push vertex (make-queue)))
 	(result (list)))
@@ -37,15 +37,15 @@ If `max-distance' is nil or 0 there is no limit on the number of steps."
 (defun boundary-from (vertices next selector-p graph)
   "Returns all vertices from the graph such that
 
-1. There is a path from `vertices' by calling successively `next'.
-2. The vertex satisfies `selector-p' (calling is (selector-p vertex `graph'))
-3. The path does not contain any other vertex which satisfies `selector-p'.
+- There is a path from VERTICES by calling successively NEXT.
+- The vertex satisfies SELECTOR-P (calling is (selector-p vertex GRAPH))
+- The path does not contain any other vertex which satisfies SELECTOR-P.
 
-Note: The argument `vertices' is either a single vertex or a
+Note: The argument VERTICES is either a single vertex or a
       collection of vertices.
 
-Note: The argument `next' is a function of two arguments a vertex and
-      `graph' and returns the reacheable set of other vertices given
+Note: The argument NEXT is a function of two arguments a vertex and
+      GRAPH and returns the reacheable set of other vertices given
       the vertex argument.
 
 Some explanation: It basically keeps expanding the set of vertices
@@ -72,24 +72,25 @@ selector.  So the selector is indicate the boundary."
     result))
 
 (defun minimal-boundary-from (vertices next selector-p graph)
-  "Returns all vertices from the `graph' such that
+  "Returns all vertices from the GRAPH such that
 
-1. There is a path from `vertices' by calling successively `next'.
+- There is a path from VERTICES by calling successively NEXT.
 
-2. The vertex satisfies `selector-p'
+- The vertex satisfies SELECTOR-P
+
    (called as (selector-p vertex graph))
 
-3. There is no path to the vertex which will have 2
-   vertices (including the end points) that satisfy `selector-p'.
+- There is no path to the vertex which will have two or more
+  vertices (including the end points) that satisfy SELECTOR-P.
 
-See for comparision the function boundary-from, the results of this
+See for comparision the function BOUNDARY-FROM, the results of this
 function will be a subset of boundary-from.
 
-Note: The argument `vertices' is either a single vertex or a
+Note: The argument VERTICES is either a single vertex or a
       collection of vertices
 
-Note: The argument `next' is a function of two arguments, a vertex and
-     `graph' and returns the reacheable set of other vertices given the
+Note: The argument NEXT is a function of two arguments, a vertex and
+     GRAPH and returns the reacheable set of other vertices given the
       vertex argument.
 "
   (let ((marker (get-vertex-marker graph))
@@ -117,9 +118,9 @@ Note: The argument `next' is a function of two arguments, a vertex and
       (remove-if-not (lambda (v) (= 1 (get-mark v marker))) result))))
 
 (defun reachable-from-not-reachable-from (vertex-a next-a vertex-b next-b graph)
-  "Returns a list of vertices in `graph' which are reacheable from
-`vertex-a' by subsequently calling `next-a', but which are not
-reachable from `vertex-b' by calling `next-b'."
+  "Returns a list of vertices in GRAPH which are reacheable from
+VERTEX-A by subsequently calling NEXT-A, but which are not
+reachable from VERTEX-B by calling NEXT-B."
   (let ((marker (get-vertex-marker graph))
 	(todo (queue-push vertex-b (make-queue)))
 	(result (list)))
@@ -151,8 +152,8 @@ reachable from `vertex-b' by calling `next-b'."
     result))
 
 (defun topological-sort (graph next previous)
-  "Returns the nodes of `graph' vertices sorted in topological order,
-The functions `next' and `previous' are functions of two arguments, a
+  "Returns the nodes of GRAPH vertices sorted in topological order,
+The functions NEXT and PREVIOUS are functions of two arguments, a
 vertex and a graph.
 
 Given a vertex they should return successors respecitvely predecessors in the directed graph.
@@ -199,9 +200,9 @@ By swapping the two functions around, the topological sort is reversed."
 ;;; multiple times. HOWEVER, neighborhood needs to use a priority-queue.
 (defun visit-vertices (fn vertex next graph)
   "Visit the vertices (including vertex) which are reacheable from
-`vertex' by calling `next' repeatedly.  For each vertex found it will
-call the function `fn' with two arguments, the vertex and the `graph'.
-Care is taken that the function `fn' is called exactly once for a
+VERTEX by calling NEXT repeatedly.  For each vertex found it will
+call the function FN with two arguments, the vertex and the GRAPH.
+Care is taken that the function FN is called exactly once for a
 reacheable vertex."
   (mapcar (lambda (v) (funcall fn v graph))
 	  (neighborhood vertex graph :selector next)))

@@ -4,46 +4,54 @@
 ;;;
 ;;;
 ;;; Classify by reacheability
-;;;
-;;; the idea is that given the graph G=(V,E) and
-;;; a subset S \subset V of selected vertices we can define
-;;; an equivelance relation R_S on V by looking at which selected
-;;; vertices are reacheable.
-;;;
-;;; First let p <= q means that there is a path from p to q.
-;;;   (if p == q we assume p <= q).
-;;; (note that for a DAG this is a partial order
-;;;
-;;; Now we say that:
-;;;
-;;;    p R_S q  iff for all s in S:
-;;;                s <= p  <==> s <= q  and
-;;;                p <= s  <==> q <= s
-;;;
-;;;
-;;;   e.g:
-;;;             /--> c --> d
-;;;    a* --> b
-;;;             \---> e* --> f
-;;;
-;;;
-;;;   We have the following classes:
-;;;                                          /-- {c,d}
-;;;     {a},  {b}, {c,d}, {e}, {f}    a --> b
-;;;                                          \-- {e} --> {f}
-;;;
-;;;   If a was not marked the classes are:
-;;;
-;;;    {a, b}, {e}, {f}, {c,d}
-;;;
 
 
 (defun classify-by-reacheability (selected graph)
-  "This function needs lots of work.
-1 - it is not very effient,
-2 - it should have next previous arguments,
-3 - it should handle the 'test-fn' specified in the graph correctly.
-4 - the return type should probably not be a hashtable."
+  "
+The idea is that given the graph G=(V,E) and
+a subset S \subset V of selected vertices we can define
+an equivelance relation R_S on V by looking at which selected
+vertices are reacheable.
+
+First let p <= q means that there is a path from p to q. (if p == q we assume p <= q).
+
+Note that for a DAG this is a partial order
+
+Now we say that:
+
+  ;
+    p R_S q  iff for all s in S:
+                s <= p  <==> s <= q  and
+                p <= s  <==> q <= s
+
+
+e.g:
+
+
+  ;
+           /--> c --> d
+   a* --> b
+           \\---> e* --> f
+
+We have the following classes:
+
+  ;
+                                        /-- {c,d}
+   {a},  {b}, {c,d}, {e}, {f}    a --> b
+                                        \\-- {e} --> {f}
+
+If a was not marked the classes are:
+
+  ;
+   {a, b}, {e}, {f}, {c,d}
+
+
+This function needs lots of work.
+- it is not very effient,
+- it should have next previous arguments,
+- it should handle the 'test-fn' specified in the graph correctly.
+- the return type should probably not be a hashtable."
+
   (let ((from-marker (get-vertex-marker graph))
 	(to-marker (get-vertex-marker graph))
 	(result (make-hash-table :test #'equalp)))

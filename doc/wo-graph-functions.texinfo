@@ -69,6 +69,7 @@ The source code is available at @url{http://github.com/woudshoo/wo-graph-functio
 @include include/fun-wo-graph-functions-simplify.texinfo
 @include include/fun-wo-graph-functions-topological-sort.texinfo
 @include include/fun-wo-graph-functions-write-to-dot.texinfo
+@include include/fun-wo-graph-functions-classify-by-reacheability.texinfo
 
 @node Function Index,  , Overview, Top
 @comment  node-name,  next,  previous,  up
