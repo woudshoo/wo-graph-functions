@@ -4,7 +4,7 @@
 (defun simplify (graph &optional &key
 		 (selector)
 		 (reducers))
-  "Simplifies a graph by repeatedly calling the reducers in REDUCERS on GRAPH.
+  "Simplifies a graph by repeatedly calling the reducers in REDUCERS on a copy of GRAPH.
 
 The REDUCERS argument should be a list of functions each taking two arguments,
 the SELECTOR and the GRAPH.  Such a function should return true if
@@ -14,7 +14,9 @@ The SELECTOR is also a function taking two arguments, a vertex and the graph.
 
 The idea of the algorithm is that the reducers are called until none of the reducers
 modifies the graph.   The selector argument is passed to the reducers to indicate
-which vertices are not to be removed by the reducer."
+which vertices are not to be removed by the reducer.
+
+The return value is the reduced graph."
   (loop :with result = (copy graph)
      :finally (return result)
      :while (some (lambda (r) (funcall r result selector)) reducers)))

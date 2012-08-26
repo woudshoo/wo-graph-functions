@@ -54,24 +54,115 @@ The source code is available at @url{http://github.com/woudshoo/wo-graph-functio
 
 @menu
 * Overview::
+* Graph Reduction::
+* Vertex Functions::
+* Miscellaneous::
 * Function Index::
 @end menu
 
-@node Overview, Function Index, Top, Top
+@node Overview, Graph Reduction, Top, Top
 @chapter Overview
 
-@include include/fun-wo-graph-functions-boundary-from.texinfo
+@node Graph Reduction, Vertex Functions, Overview, Top
+@chapter Graph Reduction
+
+At the moment there is one graph simplification function
+@code{simplify}, but this function can do a lot of different things
+depending on the parameters.
+
+@include include/fun-wo-graph-functions-simplify.texinfo
+
+So this function does not do a lot by itself, it delegates everything to
+the reducer functions listed in the @code{reducer} argument.  The
+@code{selector} argument is merely passed through to the reducers.
+
+
+@menu
+* Reducers::
+@end menu
+
+@node Reducers,  , Graph Reduction, Graph Reduction
+@section Reducers
+
+Reducers are functions taking two arguments, a graph and a selector
+function, it should modify the graph if applicable, and return a
+generalized boolean indicating if the function did change the graph.
+
+The selector argument is a function which is used to select vertices in
+the graph.  A reducer can ignore this argument, but typially it is used
+to communicate to the reducer which vertices are so important that they
+should not be removed.
+
+@menu
+* Example Reducer::
+* Predefined Reducers::
+* Selectors::
+@end menu
+
+@node Example Reducer, Predefined Reducers, Reducers, Reducers
+@subsection Example Reducer
+
+To give an example of a reducer, the following is a reducer which will remove
+from a graph all vertices that are not deemed interesting
+
+@lisp
+(defun subgraph-reducer (graph interesting-p)
+  (loop
+     :with changed = nil
+     :for vertex :in (all-vertices graph)
+     :finally (return changed)
+     :do
+     (unless (funcall interesting-p vertex graph)
+       (remove-vertex vertex graph)
+       (setf changed t))))
+@end lisp
+
+So the following call 
+
+@lisp
+(simplify graph 
+      :reducers (list #'subgraph-reducer)
+      :selector #'(lambda (vertex graph) (< 0 (random 2))))
+@end lisp
+
+will return a graph which starts out as @code{graph} but with about half
+of the vertices removed.
+
+@node Predefined Reducers, Selectors, Example Reducer, Reducers
+@subsection Predefined Reducers
+
 @include include/fun-wo-graph-functions-make-single-sided-reducer.texinfo
 @include include/fun-wo-graph-functions-make-subgraph-reducer.texinfo
+
+@node Selectors,  , Predefined Reducers, Reducers
+@subsection Selectors
+
+Selectors are functions taking two arguments, a vertex and a graph.  The return value
+indicates if the vertex is interesting.  Selectors are used as an argument for the reducers
+so the reducers know which vertices to keep and not remove.  
+As such a good selector is very important.   Now this project does not come with predefined selectors,
+however it has quite a few functions which select vertices, @xref{Vertex Functions}.  
+By using a selector such as @code{(lambda (v g) (member v calculated-set))} it is quite easy
+to create powerfull selectors.
+
+@node Vertex Functions, Miscellaneous, Graph Reduction, Top
+@chapter Vertex Functions
+
+
+@include include/fun-wo-graph-functions-boundary-from.texinfo
 @include include/fun-wo-graph-functions-minimal-boundary-from.texinfo
 @include include/fun-wo-graph-functions-neighborhood.texinfo
 @include include/fun-wo-graph-functions-reachable-from-not-reachable-from.texinfo
-@include include/fun-wo-graph-functions-simplify.texinfo
 @include include/fun-wo-graph-functions-topological-sort.texinfo
-@include include/fun-wo-graph-functions-write-to-dot.texinfo
 @include include/fun-wo-graph-functions-classify-by-reacheability.texinfo
 
-@node Function Index,  , Overview, Top
+
+@node Miscellaneous, Function Index, Vertex Functions, Top
+@chapter Miscellaneous
+
+@include include/fun-wo-graph-functions-write-to-dot.texinfo
+
+@node Function Index,  , Miscellaneous, Top
 @comment  node-name,  next,  previous,  up
 @appendix Function Index
 
