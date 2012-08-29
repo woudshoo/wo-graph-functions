@@ -3,6 +3,8 @@ all: pdf html info
 IMAGE_SOURCE = graph-1-in.dot graph-1-out.dot graph-1b-out.dot
 MAIN_SOURCE = wo-graph-functions.texinfo
 
+HTML_IMAGES = ${IMAGE_SOURCE:.dot=.dot.png} 
+
 include-stamp: ../*.lisp ../*.asd
 	sbcl \
 	--eval '(require :sb-texinfo)' \
@@ -47,6 +49,7 @@ info: wo-graph-functions.info
 pages: html
 	git checkout gh-pages
 	cp wo-graph-functions.html ../index.html
+	cp $(HTML_IMAGES) ../
 	git commit -a -C master
 	rm ../index.html
 	git checkout -f master
