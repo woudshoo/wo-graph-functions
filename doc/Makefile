@@ -1,6 +1,6 @@
 all: pdf html info
 
-IMAGE_SOURCE = graph-1-in.dot graph-1-out.dot
+IMAGE_SOURCE = graph-1-in.dot graph-1-out.dot graph-1b-out.dot
 MAIN_SOURCE = wo-graph-functions.texinfo
 
 include-stamp: ../*.lisp ../*.asd

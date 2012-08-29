@@ -145,7 +145,7 @@ This is of course a silly example.  A more interesting example is the following 
       :do
       (unless (or (funcall interesting-p vertex graph)
                   (sources-of-vertex vertex graph))
-         (remove vertex graph)
+         (remove-vertex vertex graph)
          (setf changed t))))
 @end lisp
 If we apply this to the following graph
@@ -157,12 +157,33 @@ with a selector function which returns only vertex A like this
 @lisp 
 (simplify graph
           :reducers (list #'end-point-remover)
-          :selector #'(lambda (vetex graph) ...))
+          :selector #'(lambda (vertex graph) ...))
 @end lisp 
 
 We get the following graph back.
 
 @image{graph-1-out.dot}
+
+With another reducer, for example
+@lisp
+(defun trivial-vertex-remover (graph interesting-p)
+  (loop
+    :with changed = nil
+    :for vertex :in (all-vertices graph)
+    :for sources = (sources-of-vertex vertex graph)
+    :for targets = (sources-of-vertex vertex graph)
+    :finally (return changed)
+    :do
+    (when (and (not (function interesting-p vertex graph))
+               (= 1 (length sources))
+               (= 1 (length targets)))
+       (add-edge (first sources) (first targets) nil graph)
+       (remove-vertex vertex graph))))         
+@end lisp
+
+The same starting graph with the same selector will generate
+
+@image{graph-1b-out.dot}
 
 
 
