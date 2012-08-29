@@ -50,7 +50,7 @@ pages: html
 	git checkout gh-pages
 	cp wo-graph-functions.html ../index.html
 	cp $(HTML_IMAGES) ../
-	git commit -a -C master
+	-git commit -a -C master
 	rm ../index.html
 	git checkout -f master
 
