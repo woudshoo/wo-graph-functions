@@ -1,5 +1,3 @@
-.PHONE: clean
-
 all: pdf html info
 
 IMAGE_SOURCE = graph-1-in.dot graph-1-out.dot
@@ -56,3 +54,11 @@ pages: html
 install-info: info
 	cp wo-graph-functions.info ~/share/info/
 	install-info wo-graph-functions.info ~/share/info/dir
+
+
+.PHONY: clean
+
+clean:
+	-rm -f *.pdf *.info include-stamp *.toc *.pg *.tp *.vr *.fn *.fns 
+	-rm -f *.ky *.cp *.aux *.html *.log graph-*.png
+	-rm -rf include/
