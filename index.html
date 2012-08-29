@@ -84,6 +84,11 @@ still retaining the structure of the graph.
 </li></ul>
 </li></ul>
 <li><a name="toc_Vertex-Functions" href="#Vertex-Functions">3 Vertex Functions</a>
+<ul>
+<li><a href="#Selecting">3.1 Selecting</a>
+<li><a href="#Sorting">3.2 Sorting</a>
+<li><a href="#Classifying">3.3 Classifying</a>
+</li></ul>
 <li><a name="toc_Miscellaneous" href="#Miscellaneous">4 Miscellaneous</a>
 <li><a name="toc_Function-Index" href="#Function-Index">Appendix A Function Index</a>
 </li></ul>
@@ -200,13 +205,64 @@ from a graph all vertices that are not deemed interesting
             (setf changed t))))
 </pre>
    <p>So the following call
+<pre class="lisp">     (subgraph-reducer graph #'(lambda (vertex graph) (&lt; 0 (random 2))))
+</pre>
+   <p>will return a graph which starts out as <code>graph</code> but with about half
+of the vertices removed.
 
+   <p>Contrast this with the following call to simplify
 <pre class="lisp">     (simplify graph
            :reducers (list #'subgraph-reducer)
            :selector #'(lambda (vertex graph) (&lt; 0 (random 2))))
 </pre>
-   <p>will return a graph which starts out as <code>graph</code> but with about half
-of the vertices removed.
+   <p>This keeps repeating the above process until, due to luck, no vertex is removed. 
+So if you start with a graph of about 100 vertices, the resulting graph will most likely
+not have more than about 4 vertices left.
+
+   <p>This is of course a silly example.  A more interesting example is the following reducer
+<pre class="lisp">     (defun end-point-remover (graph interesting-p)
+        (loop
+           :with changed = nil
+           :for vertex :in (all-vertices graph)
+           :finally (return changed)
+           :do
+           (unless (or (funcall interesting-p vertex graph)
+                       (sources-of-vertex vertex graph))
+              (remove-vertex vertex graph)
+              (setf changed t))))
+</pre>
+   <p>If we apply this to the following graph
+
+   <div class="block-image"><img src="graph-1-in.dot.png" alt="graph-1-in.dot.png"></div>
+
+   <p>with a selector function which returns only vertex A like this
+
+<pre class="lisp">     (simplify graph
+               :reducers (list #'end-point-remover)
+               :selector #'(lambda (vertex graph) ...))
+</pre>
+   <p>We get the following graph back.
+
+   <div class="block-image"><img src="graph-1-out.dot.png" alt="graph-1-out.dot.png"></div>
+
+   <p>With another reducer, for example
+<pre class="lisp">     (defun trivial-vertex-remover (graph interesting-p)
+       (loop
+         :with changed = nil
+         :for vertex :in (all-vertices graph)
+         :for sources = (sources-of-vertex vertex graph)
+         :for targets = (sources-of-vertex vertex graph)
+         :finally (return changed)
+         :do
+         (when (and (not (function interesting-p vertex graph))
+                    (= 1 (length sources))
+                    (= 1 (length targets)))
+            (add-edge (first sources) (first targets) nil graph)
+            (remove-vertex vertex graph))))
+</pre>
+   <p>The same starting graph with the same selector will generate
+
+   <div class="block-image"><img src="graph-1b-out.dot.png" alt="graph-1b-out.dot.png"></div>
 
 <div class="node">
 <p><hr>
@@ -274,6 +330,39 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 </div>
 
 <h2 class="chapter">3 Vertex Functions</h2>
+
+<p>Most of the vertex functions take a graph and some additional parameters
+and return a list of vertices.  The only thing of note is that quite a
+few of them take one or two functions, typically called <code>next</code> or
+<code>previous</code> which are used to traverse the graph.  Instead of
+relying on the standard functions <code>targets-of-vertex</code> or
+<code>sources-of-vertex</code> they use the supplied functions.  So basically,
+those functions only look at the vertex set of the graph (and sometimes
+not even that) and ignore the graph structure induced by the edges. 
+This has the big advantage that you can apply the same algorithm with a
+different edge structure.  For example when using
+<code>topological-sort</code> you can determine if you want to sort from small
+to big or vice versa by changing the <code>next</code> and <code>previous</code>
+arguments.  Or as another example, by changing the <code>next</code> argument
+of <code>shortest-path</code> you can the shortest path search to a subset of
+the edges of the graph.
+
+<ul class="menu">
+<li><a accesskey="1" href="#Selecting">Selecting</a>
+<li><a accesskey="2" href="#Sorting">Sorting</a>
+<li><a accesskey="3" href="#Classifying">Classifying</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="Selecting"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Sorting">Sorting</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Vertex-Functions">Vertex Functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Vertex-Functions">Vertex Functions</a>
+
+</div>
+
+<h3 class="section">3.1 Selecting</h3>
 
 <p><a name="index-boundary_002dfrom-7"></a><a name="Function-boundary_002dfrom"></a>
 
@@ -353,7 +442,18 @@ the <code>selector</code> function.
 reachable from <code>vertex-b</code> by calling <code>next-b</code>. 
 </p></blockquote></div>
 
-   <p><a name="index-topological_002dsort-15"></a><a name="Function-topological_002dsort"></a>
+<div class="node">
+<p><hr>
+<a name="Sorting"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Classifying">Classifying</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Selecting">Selecting</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Vertex-Functions">Vertex Functions</a>
+
+</div>
+
+<h3 class="section">3.2 Sorting</h3>
+
+<p><a name="index-topological_002dsort-15"></a><a name="Function-topological_002dsort"></a>
 
 <div class="defun">
 &mdash; Function: <b>topological-sort</b><var> graph next previous<a name="index-topological_002dsort-16"></a></var><br>
@@ -372,7 +472,17 @@ vertex and a graph.
         <p>By swapping the two functions around, the topological sort is reversed. 
 </p></blockquote></div>
 
-   <p><a name="index-classify_002dby_002dreacheability-17"></a><a name="Function-classify_002dby_002dreacheability"></a>
+<div class="node">
+<p><hr>
+<a name="Classifying"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Sorting">Sorting</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Vertex-Functions">Vertex Functions</a>
+
+</div>
+
+<h3 class="section">3.3 Classifying</h3>
+
+<p><a name="index-classify_002dby_002dreacheability-17"></a><a name="Function-classify_002dby_002dreacheability"></a>
 
 <div class="defun">
 &mdash; Function: <b>classify-by-reacheability</b><var> selected graph<a name="index-classify_002dby_002dreacheability-18"></a></var><br>
@@ -471,15 +581,15 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 <h2 class="appendix">Appendix A Function Index</h2>
 
 <ul class="index-fn" compact>
-<li><a href="#index-boundary_002dfrom-8"><code>boundary-from</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
-<li><a href="#index-classify_002dby_002dreacheability-17"><code>classify-by-reacheability</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
+<li><a href="#index-boundary_002dfrom-8"><code>boundary-from</code></a>: <a href="#Selecting">Selecting</a></li>
+<li><a href="#index-classify_002dby_002dreacheability-17"><code>classify-by-reacheability</code></a>: <a href="#Classifying">Classifying</a></li>
 <li><a href="#index-make_002dsingle_002dsided_002dreducer-3"><code>make-single-sided-reducer</code></a>: <a href="#Predefined-Reducers">Predefined Reducers</a></li>
 <li><a href="#index-make_002dsubgraph_002dreducer-5"><code>make-subgraph-reducer</code></a>: <a href="#Predefined-Reducers">Predefined Reducers</a></li>
-<li><a href="#index-minimal_002dboundary_002dfrom-9"><code>minimal-boundary-from</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
-<li><a href="#index-neighborhood-11"><code>neighborhood</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
-<li><a href="#index-reachable_002dfrom_002dnot_002dreachable_002dfrom-14"><code>reachable-from-not-reachable-from</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
+<li><a href="#index-minimal_002dboundary_002dfrom-9"><code>minimal-boundary-from</code></a>: <a href="#Selecting">Selecting</a></li>
+<li><a href="#index-neighborhood-11"><code>neighborhood</code></a>: <a href="#Selecting">Selecting</a></li>
+<li><a href="#index-reachable_002dfrom_002dnot_002dreachable_002dfrom-14"><code>reachable-from-not-reachable-from</code></a>: <a href="#Selecting">Selecting</a></li>
 <li><a href="#index-simplify-2"><code>simplify</code></a>: <a href="#Graph-Reduction">Graph Reduction</a></li>
-<li><a href="#index-topological_002dsort-15"><code>topological-sort</code></a>: <a href="#Vertex-Functions">Vertex Functions</a></li>
+<li><a href="#index-topological_002dsort-15"><code>topological-sort</code></a>: <a href="#Sorting">Sorting</a></li>
 <li><a href="#index-write_002dto_002ddot-20"><code>write-to-dot</code></a>: <a href="#Miscellaneous">Miscellaneous</a></li>
    </ul></body></html>
 
