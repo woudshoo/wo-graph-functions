@@ -118,15 +118,53 @@ from a graph all vertices that are not deemed interesting
 @end lisp
 
 So the following call 
+@lisp
+(subgraph-reducer graph #'(lambda (vertex graph) (< 0 (random 2))))
+@end lisp
 
+will return a graph which starts out as @code{graph} but with about half
+of the vertices removed. 
+
+Contrast this with the following call to simplify
 @lisp
 (simplify graph 
       :reducers (list #'subgraph-reducer)
       :selector #'(lambda (vertex graph) (< 0 (random 2))))
 @end lisp
+This keeps repeating the above process until, due to luck, no vertex is removed.
+So if you start with a graph of about 100 vertices, the resulting graph will most likely
+not have more than about 4 vertices left. 
 
-will return a graph which starts out as @code{graph} but with about half
-of the vertices removed.
+This is of course a silly example.  A more interesting example is the following reducer
+@lisp
+(defun end-point-remover (graph interesting-p)
+   (loop           
+      :with changed = nil
+      :for vertex :in (all-vertices graph)
+      :finally (return changed)
+      :do
+      (unless (or (funcall interesting-p vertex graph)
+                  (sources-of-vertex vertex graph))
+         (remove vertex graph)
+         (setf changed t))))
+@end lisp
+If we apply this to the following graph
+
+@image{graph-1-in.dot}
+
+with a selector function which returns only vertex A like this
+
+@lisp 
+(simplify graph
+          :reducers (list #'end-point-remover)
+          :selector #'(lambda (vetex graph) ...))
+@end lisp 
+
+We get the following graph back.
+
+@image{graph-1-out.dot}
+
+
 
 @node Predefined Reducers, Selectors, Example Reducer, Reducers
 @subsection Predefined Reducers
@@ -148,12 +186,43 @@ to create powerfull selectors.
 @node Vertex Functions, Miscellaneous, Graph Reduction, Top
 @chapter Vertex Functions
 
+Most of the vertex functions take a graph and some additional parameters
+and return a list of vertices.  The only thing of note is that quite a
+few of them take one or two functions, typically called @code{next} or
+@code{previous} which are used to traverse the graph.  Instead of
+relying on the standard functions @code{targets-of-vertex} or
+@code{sources-of-vertex} they use the supplied functions.  So basically,
+those functions only look at the vertex set of the graph (and sometimes
+not even that) and ignore the graph structure induced by the edges.
+This has the big advantage that you can apply the same algorithm with a
+different edge structure.  For example when using
+@code{topological-sort} you can determine if you want to sort from small
+to big or vice versa by changing the @code{next} and @code{previous}
+arguments.  Or as another example, by changing the @code{next} argument
+of @code{shortest-path} you can the shortest path search to a subset of
+the edges of the graph.
 
+@menu
+* Selecting::
+* Sorting::
+* Classifying::
+@end menu
+
+@node Selecting, Sorting, Vertex Functions, Vertex Functions
+@section Selecting
 @include include/fun-wo-graph-functions-boundary-from.texinfo
 @include include/fun-wo-graph-functions-minimal-boundary-from.texinfo
 @include include/fun-wo-graph-functions-neighborhood.texinfo
 @include include/fun-wo-graph-functions-reachable-from-not-reachable-from.texinfo
+
+@node Sorting, Classifying, Selecting, Vertex Functions
+@section Sorting
+
 @include include/fun-wo-graph-functions-topological-sort.texinfo
+
+@node  Classifying,  , Sorting, Vertex Functions
+@section Classifying
+
 @include include/fun-wo-graph-functions-classify-by-reacheability.texinfo
 
 

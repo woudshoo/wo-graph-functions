@@ -1,5 +1,9 @@
 .PHONE: clean
 
+all: pdf html info
+
+IMAGE_SOURCE = graph-1-in.dot graph-1-out.dot
+MAIN_SOURCE = wo-graph-functions.texinfo
 
 include-stamp: ../*.lisp ../*.asd
 	sbcl \
@@ -8,6 +12,7 @@ include-stamp: ../*.lisp ../*.asd
 	--eval '(sb-texinfo:generate-includes "include/" (list :wo-graph-functions) :base-package :wo-graph-functions)' \
 	--eval '(quit)'
 	touch include-stamp
+
 
 %.html: %.texinfo style.css include-stamp
 	makeinfo --html --no-split --css-include=style.css $<
@@ -20,12 +25,26 @@ include-stamp: ../*.lisp ../*.asd
 
 
 
+%.neato.pdf: %.dot
+	neato -Tpdf -o $@ $<
+
+%.dot.pdf: %.dot
+	dot -Tpdf -o $@ $<
+
+%.neato.png: %.dot
+	neato -Tpng -o $@ $<
+
+%.dot.png: %.dot
+	dot -Tpng -o $@ $<
+
+
+
+wo-graph-functions.pdf:  $(MAIN_SOURCE) ${IMAGE_SOURCE:.dot=.dot.pdf} include-stamp
+wo-graph-functions.html: $(MAIN_SOURCE) ${IMAGE_SOURCE:.dot=.dot.png} include-stamp
+
 html: wo-graph-functions.html
-
-pdf:  wo-graph-functions.pdf
-
+pdf: wo-graph-functions.pdf
 info: wo-graph-functions.info
-
 
 pages: html
 	git checkout gh-pages

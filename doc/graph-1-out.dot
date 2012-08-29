@@ -1,0 +1,13 @@
+digraph G {
+
+  node [shape=point];
+  rankdir=LR;
+
+  A [shape=box];
+  X->Y;
+  Y->Z;
+  Z->X;
+
+  X->A;
+}
+
