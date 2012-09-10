@@ -13,5 +13,6 @@
    #:reachable-from-not-reachable-from
    #:write-to-dot
    #:shortest-path
-   #:classify-by-reacheability))
+   #:classify-by-reacheability
+   #:shortest-edge-path))
 
