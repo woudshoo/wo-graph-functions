@@ -47,27 +47,39 @@ If a was not marked the classes are:
 
 
 This function needs lots of work.
-- it is not very effient,
 - it should have next previous arguments,
 - it should handle the 'test-fn' specified in the graph correctly.
-- the return type should probably not be a hashtable."
+- the return type should probably not be a hashtable.
+"
 
-  (let ((from-marker (get-vertex-marker graph))
+  (let ((sorted-vertices (topological-sort graph #'targets-of-vertex #'sources-of-vertex))
 	(to-marker (get-vertex-marker graph))
+	(from-marker (get-vertex-marker graph))
 	(result (make-hash-table :test #'equalp)))
 
-    (loop :for special-vertex :in selected :do
-       (visit-vertices (lambda (v g)
-			 (declare (ignore g))
-			 (push special-vertex (get-mark v from-marker (list))))
-		       special-vertex #'sources-of-vertex graph)
-       (visit-vertices (lambda (v g)
-			 (declare (ignore g))
-			 (push special-vertex (get-mark v to-marker (list))))
-		       special-vertex #'targets-of-vertex graph))
+    (labels ((update-mark (marker vertex set-of-values)
+	       (when set-of-values
+		 (setf (get-mark vertex marker) 
+		       (fset:union (get-mark vertex marker (fset:set))
+				   set-of-values)))))
+      ;; Initialize
+      (loop :for special-vertex :in selected :do
+	 (update-mark to-marker special-vertex (fset:set special-vertex))
+	 (update-mark from-marker special-vertex (fset:set special-vertex)))
 
+      ;; do the marking
+      (loop :for vertex :in sorted-vertices :do
+	 (loop :for target :in (targets-of-vertex vertex graph) :do
+	    (update-mark to-marker target (get-mark vertex to-marker))))      
+      
+      (loop :for vertex :in (reverse sorted-vertices) :do
+	 (loop :for source :in (sources-of-vertex vertex graph) :do
+	    (update-mark from-marker source (get-mark vertex from-marker))))
 
-    (loop :for v :in (all-vertices graph) :do
-       (push v (gethash (cons (get-mark v from-marker) (get-mark v to-marker)) result (list))))
-
-    result))
+      (loop :for v :in sorted-vertices :do
+	 (push v (gethash 
+		  (cons (get-mark v from-marker) (get-mark v to-marker))
+		  result 
+		  (list))))
+      
+      result)))

@@ -16,9 +16,14 @@ the SELECTOR function.
 
 If MAX-DISTANCE is nil or 0 there is no limit on the number of steps."
   (let ((marker (get-vertex-marker graph))
-	(todo (queue-push vertex (make-queue)))
+	(todo (make-queue))
 	(result (list)))
-    (setf (get-mark vertex marker) (or max-distance -1))
+
+    (mapc (lambda (v) 
+	    (queue-push v todo)
+	    (setf (get-mark v marker) (or max-distance -1)))
+	  (alexandria:ensure-list vertex))
+
     (loop
        :until (queue-empty-p todo)
        :for current = (queue-pop todo)
