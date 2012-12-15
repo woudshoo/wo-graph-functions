@@ -1,17 +1,17 @@
 (in-package #:wo-graph-functions)
 
 
-(defun neighborhood (vertex graph &optional &key
+(defun neighborhood (vertex-or-vertices graph &optional &key
 		     (max-distance nil)
 		     (selector #'neighbors-of-vertex))
   "Returns a list of vertices which can be considered the neighborhood
-of the VERTEX argument.
+of the VERTEX-OR-VERTICES argument.
 
 The SELECTOR argument is a function of two arguments,
 a vertex and a graph and provides the direct neighbors of the vertex.
 
 The list of vertices which is returned is all vertices which
-can be reached from VERTEX in less than MAX-DISTANCES steps using
+can be reached from VERTEX-OR-VERTICES in less than MAX-DISTANCES steps using
 the SELECTOR function.
 
 If MAX-DISTANCE is nil or 0 there is no limit on the number of steps."
@@ -22,7 +22,7 @@ If MAX-DISTANCE is nil or 0 there is no limit on the number of steps."
     (mapc (lambda (v) 
 	    (queue-push v todo)
 	    (setf (get-mark v marker) (or max-distance -1)))
-	  (alexandria:ensure-list vertex))
+	  (alexandria:ensure-list vertex-or-vertices))
 
     (loop
        :until (queue-empty-p todo)
@@ -39,14 +39,14 @@ If MAX-DISTANCE is nil or 0 there is no limit on the number of steps."
 	      (queue-push source todo)))))
     result))
 
-(defun boundary-from (vertices next selector-p graph)
+(defun boundary-from (vertex-or-vertices next selector-p graph)
   "Returns all vertices from the graph such that
 
-- There is a path from VERTICES by calling successively NEXT.
+- There is a path from VERTEX-OR-VERTICES by calling successively NEXT.
 - The vertex satisfies SELECTOR-P (calling is (selector-p vertex GRAPH))
 - The path does not contain any other vertex which satisfies SELECTOR-P.
 
-Note: The argument VERTICES is either a single vertex or a
+Note: The argument VERTEX-OR-VERTICES is either a single vertex or a
       collection of vertices.
 
 Note: The argument NEXT is a function of two arguments a vertex and
@@ -68,7 +68,7 @@ selector.  So the selector is indicate the boundary."
 		      (push v result)
 		      (queue-push v todo))))))
 
-      (add-to-todo-and-result (listify vertices))
+      (add-to-todo-and-result (alexandria:ensure-list vertex-or-vertices))
       (loop :until (queue-empty-p todo)
 	 :for v = (queue-pop todo)
 	 :do
@@ -76,10 +76,10 @@ selector.  So the selector is indicate the boundary."
 
     result))
 
-(defun minimal-boundary-from (vertices next selector-p graph)
+(defun minimal-boundary-from (vertex-or-vertices next selector-p graph)
   "Returns all vertices from the GRAPH such that
 
-- There is a path from VERTICES by calling successively NEXT.
+- There is a path from VERTEX-OR-VERTICES by calling successively NEXT.
 
 - The vertex satisfies SELECTOR-P
 
@@ -91,7 +91,7 @@ selector.  So the selector is indicate the boundary."
 See for comparision the function BOUNDARY-FROM, the results of this
 function will be a subset of boundary-from.
 
-Note: The argument VERTICES is either a single vertex or a
+Note: The argument VERTEX-OR-VERTICES is either a single vertex or a
       collection of vertices
 
 Note: The argument NEXT is a function of two arguments, a vertex and
@@ -114,7 +114,7 @@ Note: The argument NEXT is a function of two arguments, a vertex and
 		  (queue-push v todo)
 		  (when (= 1 new-dist) (push v result))))))
 
-      (add-to-todo-and-result (listify vertices) 0)
+      (add-to-todo-and-result (alexandria:ensure-list vertex-or-vertices) 0)
 
       (do-queue (v todo)
 	(add-to-todo-and-result (funcall next v graph)
@@ -140,11 +140,12 @@ reachable from VERTEX-B by calling NEXT-B."
 	  (unless (get-mark next marker)
 	    (setf (get-mark next marker) 'exclude)
 	    (queue-push next todo))))
-    ;; now
+    ;; now find all vertices reacheable from a (not marked as exclude)
     (flet ((mark-push-and-add-to-result (v)
 	     (unless (eq 'exclude (get-mark v marker)) (push v result))
 	     (setf (get-mark v marker) 'done)
 	     (queue-push v todo)))
+
       (mark-push-and-add-to-result vertex-a)
       (loop
 	 :until (queue-empty-p todo)
