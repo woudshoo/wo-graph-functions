@@ -6,7 +6,7 @@
 ;;; Classify by reacheability
 
 
-(defun classify-by-reacheability (selected graph)
+(defun classify-by-reacheability (graph next previous &key selector-p)
   "
 The idea is that given the graph G=(V,E) and
 a subset S \subset V of selected vertices we can define
@@ -52,7 +52,7 @@ This function needs lots of work.
 - the return type should probably not be a hashtable.
 "
 
-  (let ((sorted-vertices (topological-sort graph #'targets-of-vertex #'sources-of-vertex))
+  (let ((sorted-vertices (topological-sort graph next previous))
 	(to-marker (get-vertex-marker graph))
 	(from-marker (get-vertex-marker graph))
 	(result (make-hash-table :test #'equalp)))
@@ -61,20 +61,18 @@ This function needs lots of work.
 	       (when set-of-values
 		 (setf (get-mark vertex marker) 
 		       (fset:union (get-mark vertex marker (fset:set))
-				   set-of-values)))))
-      ;; Initialize
-      (loop :for special-vertex :in selected :do
-	 (update-mark to-marker special-vertex (fset:set special-vertex))
-	 (update-mark from-marker special-vertex (fset:set special-vertex)))
-
-      ;; do the marking
-      (loop :for vertex :in sorted-vertices :do
-	 (loop :for target :in (targets-of-vertex vertex graph) :do
-	    (update-mark to-marker target (get-mark vertex to-marker))))      
+				   set-of-values))))
+	     
+	     (mark-one-way (marker ordered-vertices next-vertices-fn)
+	       (loop :for vertex :in ordered-vertices :do
+		  (when (funcall selector-p vertex graph)
+		    (update-mark marker vertex (fset:set vertex)))
+		  (loop :for next-vertex :in (funcall next-vertices-fn vertex graph) :do
+		     (update-mark marker next-vertex (get-mark vertex marker))))))
       
-      (loop :for vertex :in (reverse sorted-vertices) :do
-	 (loop :for source :in (sources-of-vertex vertex graph) :do
-	    (update-mark from-marker source (get-mark vertex from-marker))))
+      (mark-one-way to-marker sorted-vertices next)
+      (mark-one-way from-marker (reverse sorted-vertices) previous)
+      ;; do the marking
 
       (loop :for v :in sorted-vertices :do
 	 (push v (gethash 
