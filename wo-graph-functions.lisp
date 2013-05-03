@@ -50,6 +50,12 @@ This function needs lots of work.
 - it should have next previous arguments,
 - it should handle the 'test-fn' specified in the graph correctly.
 - the return type should probably not be a hashtable.
+
+The return type is a hashtable mapping:
+
+  (from-names . to-names)  -> vertices
+
+With from-names and to-names both an fset and vertices a list.
 "
 
   (let ((sorted-vertices (topological-sort graph next previous))
