@@ -14,5 +14,9 @@
    #:write-to-dot
    #:shortest-path
    #:classify-by-reacheability
-   #:shortest-edge-path))
+   #:shortest-edge-path
+   #:vertices-with-edge-count
+   #:vertex-minimum-degree
+   #:vertex-maximum-degree
+   #:make-double-sided-reducer))
 

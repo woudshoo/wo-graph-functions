@@ -59,7 +59,24 @@ Or for the other way around
 	 (remove-vertex vertex graph)
 	 (setf changed t)))))
 
-
+(defun make-double-sided-reducer (next previous next-count previous-count connect-edge)
+  (lambda (graph interesting-p)
+    (loop 
+       :with changed = nil
+       :for vertex :in (all-vertices graph)
+       :for targets = (funcall next vertex graph)
+       :for sources = (funcall previous vertex graph)
+       :finally (return changed)
+       :do
+       (when (and (not (funcall interesting-p vertex graph))
+		  (length-is next-count targets)
+		  (length-is previous-count sources))
+	 (when connect-edge
+	   (loop :for source :in sources :do
+	      (loop :for target :in targets :do
+		 (funcall connect-edge source target graph))))
+	 (remove-vertex vertex graph)
+	 (setf changed t)))))
 
 (defun make-subgraph-reducer ()
   "Removes all non interesting vertices."

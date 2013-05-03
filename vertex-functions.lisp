@@ -1,6 +1,5 @@
 (in-package #:wo-graph-functions)
 
-
 (defun neighborhood (vertex-or-vertices graph &optional &key
 		     (max-distance nil)
 		     (selector #'neighbors-of-vertex))
@@ -157,6 +156,20 @@ reachable from VERTEX-B by calling NEXT-B."
 	      (mark-push-and-add-to-result next)))))
     result))
 
+(defun vertex-maximum-degree (v graph)
+  (max (length (wo-graph:outgoing-edges v graph))
+       (length (wo-graph:incoming-edges v graph))))
+
+(defun vertex-minimum-degree (v graph)
+  (min (length (wo-graph:outgoing-edges v graph))
+       (length (wo-graph:incoming-edges v graph))))
+
+(defun vertices-with-edge-count (graph previous count)
+  "Returns the set of vertices of the GRAPH for which
+the function PREVIOUS does return an empty list."
+  (loop :for v :in (all-vertices graph) 
+     :when (length-is count (funcall previous v graph)) :collect v))
+
 (defun topological-sort (graph next previous)
   "Returns the nodes of GRAPH vertices sorted in topological order,
 The functions NEXT and PREVIOUS are functions of two arguments, a
@@ -176,26 +189,26 @@ By swapping the two functions around, the topological sort is reversed."
 	(todo (make-queue))
 	(result (list)))
 
-    (flet ((seen-all-previous (v)
-	     (every (lambda (v) (get-mark v marker)) (funcall previous v graph)))
+    (labels ((marks (v) (get-mark v marker))
+	     
+	     (seen-all-previous (v)
+	       (every #'marks (funcall previous v graph)))
 
-	   (visit (v)
-	     (setf (get-mark v marker) 'seen)
-	     (push v result)
-	     (queue-push v todo)))
+	     (visit (v)
+	       (setf (get-mark v marker) 'seen)
+	       (push v result)
+	       (loop :for w :in (funcall next v graph) 
+		  :do (unless (marks w) (queue-push w todo)))))
 
-      (mapc (lambda (v) (unless (funcall previous v graph) (visit v)))
-	    (all-vertices graph))
+      (mapc #'visit (vertices-with-edge-count graph previous 0))
 
       (loop :until (queue-empty-p todo)
 	 :for v = (queue-pop todo)
 	 :do
-	 (loop :for w :in (funcall next v graph)
-	    :do (when (and (not (get-mark w marker))
-			   (seen-all-previous w))
-		  (visit w))))
+	 (when (and (not (marks v))
+		    (seen-all-previous v))
+	   (visit v)))
       (nreverse result))))
-
 
 ;;; NOTE
 ;;;

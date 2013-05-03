@@ -24,6 +24,18 @@ Now we say that:
                 s <= p  <==> s <= q  and
                 p <= s  <==> q <= s
 
+ 
+Now this is obvioulsy an equivalence relation.  However
+this also induces a partial order on the equivalence classes:
+
+[p]_S <= [q]_S if there exists a p' R_S p and q' R_S q such that p' <= q'.
+
+Proof:
+1 - it is obvious that [p]_S <= [p]_S
+2 - 
+    
+    
+
 
 e.g:
 
@@ -47,11 +59,9 @@ If a was not marked the classes are:
 
 
 This function needs lots of work.
-- it should have next previous arguments,
 - it should handle the 'test-fn' specified in the graph correctly.
-- the return type should probably not be a hashtable.
 
-The return type is a hashtable mapping:
+The return type is a fset mapping:
 
   (from-names . to-names)  -> vertices
 
@@ -61,7 +71,7 @@ With from-names and to-names both an fset and vertices a list.
   (let ((sorted-vertices (topological-sort graph next previous))
 	(to-marker (get-vertex-marker graph))
 	(from-marker (get-vertex-marker graph))
-	(result (make-hash-table :test #'equalp)))
+	(result (fset:empty-map)))
 
     (labels ((update-mark (marker vertex set-of-values)
 	       (when set-of-values
@@ -81,9 +91,8 @@ With from-names and to-names both an fset and vertices a list.
       ;; do the marking
 
       (loop :for v :in sorted-vertices :do
-	 (push v (gethash 
-		  (cons (get-mark v from-marker) (get-mark v to-marker))
-		  result 
-		  (list))))
+	 (setf result
+	       (wo-util:add-value-to-map result (cons (get-mark v from-marker)
+						      (get-mark v to-marker)) v)))
       
       result)))
