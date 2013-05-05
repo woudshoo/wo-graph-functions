@@ -157,10 +157,12 @@ reachable from VERTEX-B by calling NEXT-B."
     result))
 
 (defun vertex-maximum-degree (v graph)
+  "Returns the maximum of the in and out degree of V in GRAPH"
   (max (length (wo-graph:outgoing-edges v graph))
        (length (wo-graph:incoming-edges v graph))))
 
 (defun vertex-minimum-degree (v graph)
+  "Returns the minimum of the in and out degree of V in GRAPH"
   (min (length (wo-graph:outgoing-edges v graph))
        (length (wo-graph:incoming-edges v graph))))
 

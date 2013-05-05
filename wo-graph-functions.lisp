@@ -26,16 +26,29 @@ Now we say that:
 
  
 Now this is obvioulsy an equivalence relation.  However
-this also induces a partial order on the equivalence classes:
+this also induces a partial order on the equivalence classes by taking
+the transitive closure of:
 
-[p]_S <= [q]_S if there exists a p' R_S p and q' R_S q such that p' <= q'.
+[p]_S <= [q]_S if p' <= q' for some p' \in [p]_S and q' \in [q]_S.
 
 Proof:
-1 - it is obvious that [p]_S <= [p]_S
-2 - 
-    
-    
+Because it is a transitive closure and it is already reflexiv we only
+need to prove it is antisymmetric.
+ 
+Scetch of proof:
+1. Introduce a map: 
+    PRE:  V --> P(S)     v :-->  all s\in S such that s <= v
+    POST: V --> P(S)     v :-->  all s\in S such that v <= s
 
+2. Notice that this map (factors?) through  V / R_S
+
+3. Notice that the pair PP: (PRE, -POST) is a strictly increasing funciton on V/R_S.
+   Also PP is non strictly increasing on V.
+
+4. Now notice that if there is a path of (p_1,q_1), (p_2,q_2) .. (p_n, q_n) with q_n = p_1
+   that PP is non strictly increasing on p_1,q_1,p_2,q_2, ... and PP (p_1) = PP (q_n), so 
+   PP is constant.  Therefore [p_i] = [q_i] = [p_1] so also consistent and they are all
+   in the same so they are all in the same equivalence class.
 
 e.g:
 
