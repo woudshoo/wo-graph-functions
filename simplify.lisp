@@ -2,7 +2,7 @@
 
 
 (defun simplify (graph &optional &key
-		 (selector)
+		 (selector (constantly nil))
 		 (reducers))
   "Simplifies a graph by repeatedly calling the reducers in REDUCERS on a copy of GRAPH.
 
