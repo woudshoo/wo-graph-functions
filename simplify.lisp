@@ -33,12 +33,12 @@ between each source and target of the vertex to be removed.
 
 Could be used as
 
- (make-singe-sided-reducer sources-of-vertex targets-of-vertex 1
+ (make-single-sided-reducer sources-of-vertex targets-of-vertex 1
            (lambda (s t g) (add-edge s t nil g)))
 
 Or for the other way around
 
- (make-singe-sided-reducer targets-of-vertex sources-of-vertex 1
+ (make-single-sided-reducer targets-of-vertex sources-of-vertex 1
            (lambda (t s g) (add-edge s t nil g)))
  "
   (lambda (graph interesting-p)
