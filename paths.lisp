@@ -25,6 +25,72 @@ Also vi is an element of (funcall 'next v{i-1} graph)."
 
       (nreverse (get-mark vertex-b marker)))))
 
+(defun shortest-path-2 (vertex-a vertex-b next graph)
+  "Returns a path from `vertex-a' to `vertex-b'.
+A path in this context is a list '(v1 v2 ... vn)
+with v1 = vertex-a and vn = vertex-b.
+Also vi is an element of (funcall next v{i-1} graph).
+
+Note that if (funcall next v{i-1} graph) can return:
+
+- A single value, which is a list of target of the edges originating in v{i-1}
+- 2 values, the first as above, the second a list of the corresponding edge lengths.
+
+The shortest path in this context is the sum of the edge lengths.
+(If no edge length is provided, as in the first case above, the edge length defaults to 1.
+"
+  (let ((marker (get-vertex-marker graph))
+	(todo (make-priority-queue)))
+
+    (flet ((add-to-todo-and-result (v-set d-set sub-path old-d)
+	     (loop :for v :in v-set
+		   :for d = (or (pop d-set) 1)
+		   :for new-d = (- old-d d)
+		   :do
+		      (unless (get-mark v marker)
+			(setf (get-mark v marker) (cons new-d (cons v sub-path)))
+			(priority-queue-push v new-d todo)))))
+
+      (add-to-todo-and-result (list vertex-a) nil nil 0)
+
+      (loop :until (or (priority-queue-empty-p todo) (get-mark vertex-b marker))
+	    :for (d . v) = (priority-queue-pop-with-priority todo)
+	    :for p = (get-mark v marker)
+	    :do
+	       (multiple-value-bind (next-v dist-v)
+		   (funcall next v graph)
+		 (add-to-todo-and-result next-v dist-v p d)))
+
+      (nreverse (get-mark vertex-b marker)))))
+
+(defun longest-shortest-path-from (vertex-a next graph)
+  "Returns the longest path from `vertex-a' in the `graph'.
+A path in this context is a list '(v1 v2 ... vn)
+where vi is an element of (funcall 'next v{i-1} graph).
+
+The path between `vertex-a' and vn is the shortest possible path
+between these nodes."
+  (let ((marker (get-vertex-marker graph))
+	(todo (make-queue))
+	(last-path nil))
+
+    (flet ((add-to-todo-and-result (v-set sub-path)
+	     (loop :for v :in v-set :do
+	       (unless (get-mark v marker)
+		 (setf last-path (cons v sub-path))
+		 (setf (get-mark v marker) last-path)
+		 (queue-push v todo)))))
+
+      (add-to-todo-and-result (list vertex-a) nil)
+
+      (loop :until (queue-empty-p todo)
+	 :for v = (queue-pop todo)
+	 :for p = (get-mark v marker)
+	 :do
+	 (add-to-todo-and-result (funcall next v graph) p))
+
+      (nreverse last-path))))
+
 (defun shortest-edge-path (vertex-a vertex-b outgoing-edges outgoing-vertices graph 
 			   &key include-vertices)
   "Returns a path from VERTEX-A to VERTEX-B.

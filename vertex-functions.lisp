@@ -156,6 +156,38 @@ reachable from VERTEX-B by calling NEXT-B."
 	      (mark-push-and-add-to-result next)))))
     result))
 
+(defun only-reachable-from (vertex next previous graph)
+  "All vertices exclusively reachable from VERTEX.
+
+To be more precise, retuns a list L of all vertices such that if v
+element L than any path p ending in v contains either VERTEX, or there
+is a path from VERTEX to the start of p.
+
+Or in other words, any maximal length path p ending in v contains VERTEX.
+"
+  (let ((marker (get-vertex-marker graph))
+	(todo (make-queue))
+	(result (list)))
+    ;; now find all vertices reacheable from a (not marked as exclude)
+    (flet ((mark-push-and-add-to-result (v)
+	     "Mark node, add to result and add candidates to todo list."
+	     (unless (get-mark v marker nil)
+	       (setf (get-mark v marker) t)
+	       (push v result)
+	       (loop :for v :in (funcall next v graph)
+		     :do
+			(queue-push v todo)))))
+
+      (mark-push-and-add-to-result vertex)
+      (loop
+	 :until (queue-empty-p todo)
+	 :for current = (queue-pop todo)
+	 :when (every #'(lambda (v) (get-mark v marker nil))
+		      (funcall previous current graph))
+	   :do
+	      (mark-push-and-add-to-result current)))
+    result))
+
 (defun vertex-maximum-degree (v graph)
   "Returns the maximum of the in and out degree of V in GRAPH"
   (max (length (wo-graph:outgoing-edges v graph))

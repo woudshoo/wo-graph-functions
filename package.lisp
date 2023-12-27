@@ -18,5 +18,7 @@
    #:vertices-with-edge-count
    #:vertex-minimum-degree
    #:vertex-maximum-degree
-   #:make-double-sided-reducer))
+   #:make-double-sided-reducer
+   #:longest-shortest-path-from
+   #:only-reachable-from))
 
